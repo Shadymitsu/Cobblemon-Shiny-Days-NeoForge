@@ -8,7 +8,7 @@ version = "${version}"
 displayName = "Cobblemon Shiny Days"
 authors = "Shadymitsu & ChatGPT"
 description = "Increase shiny odds on certain days!"
-#logoFile = ""
+logoFile = "/ShinyDaysIcon.png"
 
 [[dependencies.cobblemon_neoforge_mdk]]
 modId = "minecraft"
