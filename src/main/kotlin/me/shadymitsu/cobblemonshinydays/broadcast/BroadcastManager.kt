@@ -39,7 +39,7 @@ object BroadcastManager {
                             else -> entry.species.first() // If only one species is listed
                         }
 
-                        val message = "§eToday is a §6Shiny Day! §5$speciesText §ehave increased S shiny rates!"
+                        val message = "§eToday is a §6Shiny Day! §5$speciesText §ehave increased shiny rates!"
                         broadcastToServer(message)
                     }
                 }
