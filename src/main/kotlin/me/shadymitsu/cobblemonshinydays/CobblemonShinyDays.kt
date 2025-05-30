@@ -12,38 +12,42 @@ class CobblemonShinyDays {
 
     init {
         println("Cobblemon Shiny Days loaded!")
-
-        // Load once at startup
         val config = ConfigLoader.loadConfig()
         println("Config loaded with ${config.size} time block(s).")
 
-        // Register event
         CobblemonEvents.SHINY_CHANCE_CALCULATION.subscribe { event ->
             handleShinyChanceCalculation(event)
         }
 
-        // Start broadcasting
         BroadcastManager.startBroadcasting()
     }
 
     private fun handleShinyChanceCalculation(event: ShinyChanceCalculationEvent) {
         val day = LocalDateTime.now().dayOfWeek.name
         val speciesName = event.pokemon.species.name
+        val pokemonTypes = event.pokemon.types.map { it.name.lowercase() }
 
         val config = ConfigLoader.loadConfig()
-        val multiplier = config.firstOrNull {
-            // Check if species matches "ALL" or if specific species match
-            (it.species.contains("ALL") || it.species.any { s -> s.equals(speciesName, ignoreCase = true) }) &&
-                    // Check if the day is part of the active days
-                    it.days.any { configDay -> configDay.equals(day, ignoreCase = true) } ||
-                    // Check if any label matches using hasLabels()
-                    it.labels.any { label -> event.pokemon.hasLabels(label) }
+
+        val multiplier = config.firstOrNull { entry ->
+            val dayMatch = entry.days.any { it.equals(day, ignoreCase = true) }
+            if (!dayMatch) return@firstOrNull false
+
+            val speciesMatch = entry.species.map { it.uppercase() }.contains("ALL") ||
+                    entry.species.any { it.equals(speciesName, ignoreCase = true) }
+
+            val labelMatch = entry.labels.any { label -> event.pokemon.hasLabels(label) }
+
+            val typeMatch = entry.types.any { type -> pokemonTypes.contains(type.lowercase()) }
+
+            speciesMatch || labelMatch || typeMatch
         }?.multiplier
 
         if (multiplier != null) {
-            // Apply the multiplier to the shiny calculation event
+            println("Applying shiny multiplier $multiplier for $speciesName on $day")
             event.addModificationFunction { base, _, _ -> base / multiplier }
+        } else {
+            println("No shiny multiplier applied for $speciesName on $day")
         }
     }
 }
-
