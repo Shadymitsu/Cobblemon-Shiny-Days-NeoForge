@@ -44,10 +44,7 @@ class CobblemonShinyDays {
         }?.multiplier
 
         if (multiplier != null) {
-            println("Applying shiny multiplier $multiplier for $speciesName on $day")
             event.addModificationFunction { base, _, _ -> base / multiplier }
-        } else {
-            println("No shiny multiplier applied for $speciesName on $day")
         }
     }
 }
